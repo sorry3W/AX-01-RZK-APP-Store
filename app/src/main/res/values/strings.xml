@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">AX-01 App Store Creator</string>
+    <string name="slogan_bengali">\"শূণ্য থেকে শুরু শূন্য তেই শেষ\"</string>
+    <string name="developer_attribution">Sultan Mahmud Sumon • Lead Architect &amp; Developer (rzk)</string>
+    <string name="company_name">AX-01 RZK Software Company</string>
+    <string name="direct_sms">01990761212</string>
+    <string name="bkash_nagad">01640646714</string>
+    <string name="mastercard_payment">5191555506390948</string>
+</resources>

@@ -1,0 +1,1405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AX-01 App Store Creator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600;700&family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #070B14;
+            --surface-dark: #0D1424;
+            --card-dark: #131D33;
+            --card-elevated: #18243E;
+            --border-cyber: #1E2E4E;
+            --border-glow: #2A4374;
+            --neon-cyan: #00E5FF;
+            --neon-purple: #D500F9;
+            --neon-emerald: #00E676;
+            --neon-amber: #FFB300;
+            --neon-rose: #FF1744;
+            --text-primary: #F1F5F9;
+            --text-secondary: #94A3B8;
+            --text-muted: #64748B;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* Top HUD Bar */
+        .hud-header {
+            background: rgba(13, 20, 36, 0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-cyber);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 10px 16px;
+        }
+
+        .hud-top-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand-badge {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .brand-logo {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
+            color: #000;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Fira Code', monospace;
+            font-size: 16px;
+            box-shadow: 0 0 15px rgba(0, 229, 255, 0.3);
+        }
+
+        .brand-title {
+            font-size: 17px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        .brand-sub {
+            font-size: 10px;
+            color: var(--text-muted);
+            font-family: 'Fira Code', monospace;
+        }
+
+        .hud-stats {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .stat-pill {
+            background: var(--card-elevated);
+            border: 1px solid var(--border-cyber);
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-family: 'Fira Code', monospace;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .stat-pill:hover {
+            border-color: var(--neon-cyan);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--neon-emerald);
+            box-shadow: 0 0 8px var(--neon-emerald);
+        }
+
+        .creed-banner {
+            background: #0A1120;
+            border: 1px solid var(--border-glow);
+            border-radius: 8px;
+            padding: 4px 10px;
+            margin-top: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+            cursor: pointer;
+        }
+
+        .creed-text {
+            color: var(--neon-cyan);
+            font-weight: 600;
+        }
+
+        .creed-meta {
+            color: var(--text-muted);
+            font-family: 'Fira Code', monospace;
+            font-size: 10px;
+        }
+
+        /* Navigation Tabs */
+        .nav-bar {
+            background: var(--surface-dark);
+            border-bottom: 1px solid var(--border-cyber);
+            display: flex;
+            overflow-x: auto;
+            scrollbar-width: none;
+            padding: 4px 12px;
+            gap: 6px;
+        }
+
+        .nav-bar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .nav-tab {
+            padding: 8px 14px;
+            border-radius: 8px;
+            border: 1px solid transparent;
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: transparent;
+            transition: all 0.2s ease;
+        }
+
+        .nav-tab.active {
+            color: var(--neon-cyan);
+            background: var(--card-elevated);
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 10px rgba(0, 229, 255, 0.15);
+        }
+
+        /* Main Container */
+        .main-container {
+            max-width: 900px;
+            margin: 0 auto;
+            width: 100%;
+            padding: 16px;
+            flex: 1;
+        }
+
+        /* Cards */
+        .cyber-card {
+            background: var(--card-dark);
+            border: 1px solid var(--border-cyber);
+            border-radius: 14px;
+            padding: 16px;
+            margin-bottom: 16px;
+            position: relative;
+            overflow: hidden;
+            transition: border-color 0.2s, transform 0.2s;
+        }
+
+        .cyber-card:hover {
+            border-color: var(--border-glow);
+        }
+
+        .hero-carousel {
+            background: linear-gradient(135deg, rgba(213, 0, 249, 0.2) 0%, rgba(13, 20, 36, 0.95) 100%);
+            border: 1px solid var(--neon-purple);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 180px;
+            box-shadow: 0 0 25px rgba(213, 0, 249, 0.15);
+        }
+
+        .cyber-pill {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 700;
+            font-family: 'Fira Code', monospace;
+            text-transform: uppercase;
+        }
+
+        /* Category Filter Pills */
+        .category-row {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 12px;
+            margin-bottom: 8px;
+            scrollbar-width: none;
+        }
+
+        .category-row::-webkit-scrollbar {
+            display: none;
+        }
+
+        .cat-pill {
+            padding: 6px 14px;
+            border-radius: 8px;
+            background: var(--card-dark);
+            border: 1px solid var(--border-cyber);
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+
+        .cat-pill.active {
+            background: rgba(0, 229, 255, 0.15);
+            border-color: var(--neon-cyan);
+            color: var(--neon-cyan);
+        }
+
+        /* App Items Grid / List */
+        .app-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .app-item {
+            background: var(--card-dark);
+            border: 1px solid var(--border-cyber);
+            border-radius: 12px;
+            padding: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .app-item:hover {
+            border-color: var(--neon-cyan);
+            transform: translateY(-2px);
+        }
+
+        .app-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-family: 'Fira Code', monospace;
+            font-size: 18px;
+            flex-shrink: 0;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .app-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .app-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .app-tagline {
+            font-size: 12px;
+            color: var(--text-secondary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-top: 2px;
+        }
+
+        .app-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 4px;
+            font-family: 'Fira Code', monospace;
+        }
+
+        .btn-action {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+            white-space: nowrap;
+            font-family: 'Fira Code', monospace;
+        }
+
+        .btn-get {
+            background: var(--neon-cyan);
+            color: #000;
+        }
+
+        .btn-get:hover {
+            box-shadow: 0 0 12px rgba(0, 229, 255, 0.5);
+        }
+
+        .btn-run {
+            background: transparent;
+            color: var(--neon-emerald);
+            border: 1px solid var(--neon-emerald);
+        }
+
+        .btn-run:hover {
+            background: rgba(0, 230, 118, 0.15);
+            box-shadow: 0 0 12px rgba(0, 230, 118, 0.3);
+        }
+
+        /* Modal Overlay */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(3, 7, 18, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 200;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-dialog {
+            background: var(--bg-dark);
+            border: 2px solid var(--neon-cyan);
+            border-radius: 16px;
+            width: 100%;
+            max-width: 680px;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 0 40px rgba(0, 229, 255, 0.2);
+            animation: popIn 0.25s ease-out;
+        }
+
+        @keyframes popIn {
+            from { transform: scale(0.92); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-header {
+            background: var(--surface-dark);
+            border-bottom: 1px solid var(--border-cyber);
+            padding: 12px 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-body {
+            padding: 18px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .btn-close {
+            background: var(--card-dark);
+            border: 1px solid var(--border-cyber);
+            color: var(--text-primary);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        /* Form Inputs */
+        .input-group {
+            margin-bottom: 14px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 11px;
+            color: var(--text-secondary);
+            font-family: 'Fira Code', monospace;
+            margin-bottom: 6px;
+        }
+
+        .input-control {
+            width: 100%;
+            background: var(--surface-dark);
+            border: 1px solid var(--border-cyber);
+            color: var(--text-primary);
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .input-control:focus {
+            border-color: var(--neon-cyan);
+        }
+
+        /* Terminal Console */
+        .terminal-box {
+            background: #030712;
+            border: 1px solid var(--border-cyber);
+            border-radius: 10px;
+            padding: 14px;
+            font-family: 'Fira Code', monospace;
+            font-size: 12px;
+            height: 240px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .term-prompt {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .term-input {
+            flex: 1;
+            background: #030712;
+            border: 1px solid var(--border-cyber);
+            color: var(--neon-cyan);
+            font-family: 'Fira Code', monospace;
+            padding: 8px 12px;
+            border-radius: 6px;
+            outline: none;
+        }
+
+        /* Pricing Card */
+        .tier-card {
+            background: var(--card-dark);
+            border: 1px solid var(--border-cyber);
+            border-radius: 12px;
+            padding: 18px;
+            margin-bottom: 14px;
+            transition: all 0.2s;
+        }
+
+        .tier-card.featured {
+            border-color: var(--neon-purple);
+            box-shadow: 0 0 20px rgba(213, 0, 249, 0.15);
+        }
+
+        .tier-price {
+            font-size: 26px;
+            font-weight: 900;
+            font-family: 'Fira Code', monospace;
+            margin: 6px 0;
+        }
+
+        /* Support Rows */
+        .contact-channel {
+            background: var(--surface-dark);
+            border: 1px solid var(--border-cyber);
+            border-radius: 8px;
+            padding: 10px 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .toast-msg {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 229, 255, 0.95);
+            color: #000;
+            padding: 10px 22px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 13px;
+            display: none;
+            z-index: 300;
+            box-shadow: 0 0 20px rgba(0, 229, 255, 0.5);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HUD Header -->
+    <header class="hud-header">
+        <div class="hud-top-row">
+            <div class="brand-badge" onclick="switchTab('attribution')">
+                <div class="brand-logo">AX</div>
+                <div>
+                    <div class="brand-title"><span style="color:var(--neon-cyan);">AX-01</span> STORE CREATOR</div>
+                    <div class="brand-sub">RZK Softoware Enclave Matrix</div>
+                </div>
+            </div>
+
+            <div class="hud-stats">
+                <div class="stat-pill" onclick="claimStreak()">
+                    <span style="color:var(--neon-amber);">⚡</span>
+                    <span id="creditBalance" style="color:var(--neon-amber); font-weight:700;">2,450 AX</span>
+                </div>
+                <div class="stat-pill" onclick="switchTab('pricing')">
+                    <div class="status-dot"></div>
+                    <span id="currentPlanPill" style="color:var(--neon-cyan); font-weight:700;">Trial (60d)</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="creed-banner" onclick="switchTab('attribution')">
+            <span class="creed-text">"শূণ্য থেকে শুরু শূন্য তেই শেষ"</span>
+            <span class="creed-meta">AI Quantum 1,000-Yr Security • Automated 24h Feed</span>
+        </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <nav class="nav-bar">
+        <button class="nav-tab active" onclick="switchTab('discover')">🛒 Discover</button>
+        <button class="nav-tab" onclick="switchTab('search')">🔍 Search</button>
+        <button class="nav-tab" onclick="switchTab('creator')">⚙️ Creator Studio</button>
+        <button class="nav-tab" onclick="switchTab('storage')">💾 Storage Enclave</button>
+        <button class="nav-tab" onclick="switchTab('pricing')">💎 Pricing & Tiers</button>
+        <button class="nav-tab" onclick="switchTab('attribution')">📜 RZK Legal & Support</button>
+    </nav>
+
+    <!-- Main Views -->
+    <main class="main-container">
+
+        <!-- 1. DISCOVER VIEW -->
+        <section id="view-discover">
+            <!-- Hero Carousel -->
+            <div class="hero-carousel">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span class="cyber-pill" style="background:rgba(213,0,249,0.25); color:var(--neon-purple); border:1px solid var(--neon-purple);">FLAGSHIP SHOWCASE</span>
+                    <span style="font-size:11px; color:var(--text-muted); font-family:'Fira Code';">NODE-01 ACTIVE</span>
+                </div>
+                <div style="margin: 12px 0;">
+                    <h2 style="font-size: 24px; font-weight: 900; color: #fff;">NeuralStudio AX</h2>
+                    <p style="font-size: 13px; color: var(--text-secondary); margin-top: 4px;">On-Device Quantized Neural Engine & Synthesis Matrix</p>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <div style="display:flex; gap:10px; font-size:12px; color:var(--text-muted); font-family:'Fira Code';">
+                        <span style="color:var(--neon-amber);">★ 4.9</span>
+                        <span>2.8M Downloads</span>
+                        <span>48.5 MB</span>
+                    </div>
+                    <button class="btn-action btn-get" onclick="launchSandbox('ax_neural_studio')">RUN SANDBOX</button>
+                </div>
+            </div>
+
+            <!-- Categories -->
+            <div class="category-row">
+                <button class="cat-pill active" onclick="filterCategory('ALL', this)">All Modules</button>
+                <button class="cat-pill" onclick="filterCategory('NEURAL_AI', this)">Neural & AI</button>
+                <button class="cat-pill" onclick="filterCategory('QUANTUM_SECURITY', this)">Quantum Sec</button>
+                <button class="cat-pill" onclick="filterCategory('CYBER_TOOLS', this)">Cyber Tools</button>
+                <button class="cat-pill" onclick="filterCategory('HOLO_GAMES', this)">Holo Games</button>
+                <button class="cat-pill" onclick="filterCategory('AUDIO_MEDIA', this)">Audio & Synth</button>
+                <button class="cat-pill" onclick="filterCategory('BIOMETRICS', this)">Biometrics</button>
+                <button class="cat-pill" onclick="filterCategory('CREATOR', this)">Creator Built</button>
+            </div>
+
+            <!-- App List -->
+            <div id="appListContainer" class="app-list"></div>
+        </section>
+
+        <!-- 2. SEARCH VIEW -->
+        <section id="view-search" style="display:none;">
+            <div class="input-group">
+                <input type="text" id="searchInput" class="input-control" placeholder="Search cyber modules, quantum tools, neural engines..." oninput="onSearchChange(this.value)">
+            </div>
+            <div style="margin-bottom: 16px;">
+                <div style="font-size: 11px; color: var(--text-muted); font-family:'Fira Code'; margin-bottom: 8px;">TRENDING KEYWORDS</div>
+                <div style="display:flex; flex-wrap:wrap; gap:8px;">
+                    <span class="cat-pill" onclick="setSearch('Quantum VPN')">#QuantumVPN</span>
+                    <span class="cat-pill" onclick="setSearch('Neural')">#NeuralStudio</span>
+                    <span class="cat-pill" onclick="setSearch('Terminal')">#ApexTerminal</span>
+                    <span class="cat-pill" onclick="setSearch('Chrono')">#ChronoRacer</span>
+                    <span class="cat-pill" onclick="setSearch('BioSync')">#BioSync</span>
+                </div>
+            </div>
+            <div id="searchResultsContainer" class="app-list"></div>
+        </section>
+
+        <!-- 3. CREATOR STUDIO VIEW -->
+        <section id="view-creator" style="display:none;">
+            <div class="cyber-card" style="border-color:var(--neon-purple);">
+                <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+                    <span style="font-size:18px;">⚙️</span>
+                    <h3 style="color:var(--neon-purple); font-size:14px; font-family:'Fira Code'; font-weight:700;">AX-01 APP STORE CREATOR STUDIO</h3>
+                </div>
+                <p style="font-size:12px; color:var(--text-secondary); line-height:1.5;">Build, package, and deploy your custom cyber module into the AX-01 Matrix. Instantly test in live sandbox containers.</p>
+            </div>
+
+            <div class="cyber-card">
+                <div class="input-group">
+                    <label>MODULE TITLE</label>
+                    <input type="text" id="creatorTitle" class="input-control" value="HyperDrive Quantum Engine">
+                </div>
+                <div class="input-group">
+                    <label>TAGLINE</label>
+                    <input type="text" id="creatorTagline" class="input-control" value="Antigravity sub-space warp governor">
+                </div>
+                <div class="input-group">
+                    <label>SPECIFICATION & DESCRIPTION</label>
+                    <textarea id="creatorDesc" class="input-control" rows="3">High-velocity telemetry governor providing real-time warp bubble phase alignment with automated data feed integration.</textarea>
+                </div>
+                <div style="display:flex; gap:12px;">
+                    <div class="input-group" style="flex:2;">
+                        <label>PACKAGE IDENTIFIER</label>
+                        <input type="text" id="creatorPkg" class="input-control" value="com.cyber.hyperdrive">
+                    </div>
+                    <div class="input-group" style="flex:1;">
+                        <label>VERSION</label>
+                        <input type="text" id="creatorVer" class="input-control" value="1.0.0">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>SANDBOX RUNTIME LOGIC TEMPLATE</label>
+                    <select id="creatorTemplate" class="input-control">
+                        <option value="TERMINAL">Apex Cyber Shell Terminal</option>
+                        <option value="NEURAL">Neural AI Synthesis Engine</option>
+                        <option value="VPN">Quantum Lattice VPN Tunnel</option>
+                        <option value="OVERCLOCK">Cluster Overclock Optimizer</option>
+                        <option value="RACER">Antigrav Cockpit Dashboard</option>
+                        <option value="SYNTH">8-Pad Synthwave Studio</option>
+                    </select>
+                </div>
+
+                <button class="btn-action btn-get" style="width:100%; justify-content:center; padding:12px; background:var(--neon-purple); color:#fff; font-size:13px;" onclick="deployCustomApp()">
+                    🚀 COMPILE & DEPLOY TO STORE MATRIX
+                </button>
+            </div>
+
+            <h4 style="font-size:13px; font-family:'Fira Code'; color:var(--text-secondary); margin:16px 0 10px;">USER DEPLOYED MODULES</h4>
+            <div id="creatorAppsList" class="app-list"></div>
+        </section>
+
+        <!-- 4. STORAGE ENCLAVE VIEW -->
+        <section id="view-storage" style="display:none;">
+            <div class="cyber-card">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                    <div style="font-size:12px; font-family:'Fira Code'; font-weight:700; color:var(--text-primary);">AX-01 ENCLAVE ALLOCATION</div>
+                    <span style="color:var(--neon-cyan); font-family:'Fira Code'; font-size:12px;">644 MB USED</span>
+                </div>
+                <div style="height:10px; border-radius:5px; background:var(--surface-dark); display:flex; overflow:hidden; margin-bottom:12px;">
+                    <div style="width:40%; background:var(--neon-cyan);"></div>
+                    <div style="width:30%; background:var(--neon-purple);"></div>
+                    <div style="width:15%; background:var(--neon-amber);"></div>
+                    <div style="width:15%; background:var(--border-cyber);"></div>
+                </div>
+                <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--text-muted); font-family:'Fira Code';">
+                    <span>Binaries: 260 MB</span>
+                    <span>Cache: 384 MB</span>
+                    <span>Neural: 120 MB</span>
+                    <span>Free: 28.4 GB</span>
+                </div>
+                <div style="display:flex; gap:10px; margin-top:16px;">
+                    <button class="btn-action btn-run" style="flex:1; justify-content:center;" onclick="purgeCache()">PURGE CACHE (384MB)</button>
+                    <button class="btn-action btn-get" style="flex:1; justify-content:center; background:var(--neon-emerald);" onclick="updateAllModules()">UPDATE ALL MODULES</button>
+                </div>
+            </div>
+
+            <h4 style="font-size:13px; font-family:'Fira Code'; color:var(--text-secondary); margin:16px 0 10px;">INSTALLED ENCLAVES</h4>
+            <div id="installedAppsContainer" class="app-list"></div>
+        </section>
+
+        <!-- 5. PRICING & SUBSCRIPTION TIERS VIEW -->
+        <section id="view-pricing" style="display:none;">
+            <div class="cyber-card" style="border-color:var(--neon-amber);">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <span style="font-size:12px; font-family:'Fira Code'; font-weight:700; color:var(--neon-amber);">ACTIVE SUBSCRIPTION STATUS</span>
+                    <span class="cyber-pill" style="background:rgba(0,230,118,0.2); color:var(--neon-emerald); border:1px solid var(--neon-emerald);">ACTIVE</span>
+                </div>
+                <div id="activePlanTitle" style="font-size:20px; font-weight:900;">Trial Sandbox (60 Days)</div>
+                <div style="font-size:11px; color:var(--text-secondary); font-family:'Fira Code'; margin-top:4px;">
+                    Automated Data Feed every 24 Hours • AI Quantum security • App Life Time 1000 years.
+                </div>
+            </div>
+
+            <!-- Official Payment Channels -->
+            <div class="cyber-card">
+                <div style="font-size:11px; font-family:'Fira Code'; color:var(--text-secondary); font-weight:700; margin-bottom:10px;">OFFICIAL PAYMENT CHANNELS & SYSTEMS</div>
+
+                <div class="contact-channel">
+                    <div>
+                        <div style="font-size:10px; color:var(--text-muted); font-family:'Fira Code';">BKASH / NAGAD DIRECT</div>
+                        <div style="font-size:14px; font-weight:700; font-family:'Fira Code'; color:var(--neon-rose);">01640646714</div>
+                    </div>
+                    <button class="btn-action btn-run" onclick="copyText('01640646714', 'bKash/Nagad Number')">COPY</button>
+                </div>
+
+                <div class="contact-channel">
+                    <div>
+                        <div style="font-size:10px; color:var(--text-muted); font-family:'Fira Code';">MASTERCARD PAYMENT SYSTEM</div>
+                        <div style="font-size:14px; font-weight:700; font-family:'Fira Code'; color:var(--neon-amber);">5191555506390948</div>
+                    </div>
+                    <button class="btn-action btn-run" onclick="copyText('5191555506390948', 'Mastercard')">COPY</button>
+                </div>
+
+                <div class="contact-channel">
+                    <div>
+                        <div style="font-size:10px; color:var(--text-muted); font-family:'Fira Code';">DIRECT SMS ACTIVATION</div>
+                        <div style="font-size:14px; font-weight:700; font-family:'Fira Code'; color:var(--neon-cyan);">01990761212</div>
+                    </div>
+                    <button class="btn-action btn-run" onclick="copyText('01990761212', 'Direct SMS')">COPY</button>
+                </div>
+            </div>
+
+            <!-- Tiers List -->
+            <div id="pricingTiersList"></div>
+        </section>
+
+        <!-- 6. RZK LEGAL & SUPPORT VIEW -->
+        <section id="view-attribution" style="display:none;">
+            <!-- Lead Architect Card -->
+            <div class="cyber-card" style="border-color:var(--neon-cyan);">
+                <div style="display:flex; align-items:center; gap:14px; margin-bottom:14px;">
+                    <div style="width:54px; height:54px; border-radius:50%; background:linear-gradient(135deg, var(--neon-cyan), var(--neon-purple)); display:flex; align-items:center; justify-content:center; font-size:24px; color:#000;">👤</div>
+                    <div>
+                        <h2 style="font-size:18px; font-weight:900;">Sultan Mahmud Sumon</h2>
+                        <div style="color:var(--neon-cyan); font-size:12px; font-weight:700; font-family:'Fira Code';">Lead Architect & Developer (rzk)</div>
+                        <div style="color:var(--text-muted); font-size:11px;">AX-01 RZK Software Company</div>
+                    </div>
+                </div>
+
+                <div style="background:#030712; border:1px solid var(--border-glow); border-radius:8px; padding:12px; margin-bottom:14px;">
+                    <div style="font-size:15px; font-weight:700; color:var(--neon-cyan);">"শূণ্য থেকে শুরু শূন্য তেই শেষ"</div>
+                    <div style="font-size:10px; color:var(--text-muted); font-family:'Fira Code'; margin-top:2px;">Attribution & Support Core Creed</div>
+                </div>
+
+                <div style="font-size:11px; color:var(--text-secondary); line-height:1.6; font-family:'Fira Code';">
+                    © 2026 AX-01RZK Softoware Company. All rights reserved. Automated Data Feed every 24 Hours. AI Quantum security. App Life Time 1000 years.
+                </div>
+            </div>
+
+            <!-- Contact Channels -->
+            <div class="cyber-card">
+                <div style="font-size:11px; font-family:'Fira Code'; color:var(--text-secondary); font-weight:700; margin-bottom:10px;">DIRECT SUPPORT & SOCIAL HUBS</div>
+
+                <div class="contact-channel">
+                    <div>
+                        <div style="font-size:10px; color:var(--text-muted); font-family:'Fira Code';">DIRECT SMS</div>
+                        <div style="font-size:13px; font-weight:700;">01990761212</div>
+                    </div>
+                    <button class="btn-action btn-run" onclick="window.location.href='sms:01990761212'">SEND SMS</button>
+                </div>
+
+                <div class="contact-channel">
+                    <div>
+                        <div style="font-size:10px; color:var(--text-muted); font-family:'Fira Code';">OFFICIAL EMAIL</div>
+                        <div style="font-size:13px; font-weight:700;">ax01rzk@gmail.com</div>
+                    </div>
+                    <button class="btn-action btn-run" onclick="window.location.href='mailto:ax01rzk@gmail.com'">EMAIL</button>
+                </div>
+
+                <div class="contact-channel">
+                    <div>
+                        <div style="font-size:10px; color:var(--text-muted); font-family:'Fira Code';">OFFICIAL WEBSITE</div>
+                        <div style="font-size:13px; font-weight:700;">https://www.ax01rzk.com</div>
+                    </div>
+                    <button class="btn-action btn-run" onclick="window.open('https://www.ax01rzk.com','_blank')">OPEN</button>
+                </div>
+
+                <div class="contact-channel">
+                    <div>
+                        <div style="font-size:10px; color:var(--text-muted); font-family:'Fira Code';">YOUTUBE CHANNEL</div>
+                        <div style="font-size:13px; font-weight:700;">@ax-01rzk-youtube</div>
+                    </div>
+                    <button class="btn-action btn-run" onclick="window.open('https://www.youtube.com/@ax-01rzk-youtube','_blank')">YOUTUBE</button>
+                </div>
+
+                <div class="contact-channel">
+                    <div>
+                        <div style="font-size:10px; color:var(--text-muted); font-family:'Fira Code';">FACEBOOK COMMUNITY</div>
+                        <div style="font-size:13px; font-weight:700;">AX-01 RZK Facebook Group</div>
+                    </div>
+                    <button class="btn-action btn-run" onclick="window.open('https://www.facebook.com/share/1MG3yKLLFF/','_blank')">VISIT</button>
+                </div>
+            </div>
+
+            <!-- Full Legal Documents -->
+            <div class="cyber-card">
+                <div style="display:flex; gap:8px; margin-bottom:14px;">
+                    <button class="cat-pill active" onclick="showLegalDoc('privacy', this)">Privacy Policy</button>
+                    <button class="cat-pill" onclick="showLegalDoc('eula', this)">EULA & Licenses</button>
+                    <button class="cat-pill" onclick="showLegalDoc('terms', this)">Terms of Service</button>
+                </div>
+                <div id="legalDocContent" style="background:#030712; padding:14px; border-radius:8px; font-size:12px; line-height:1.6; color:var(--text-secondary); max-height:360px; overflow-y:auto; white-space:pre-wrap; font-family:'Inter', sans-serif;"></div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Interactive Live Sandbox Modal -->
+    <div id="sandboxModal" class="modal-overlay">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <div>
+                    <div id="sandboxAppTitle" style="font-size:15px; font-weight:700; color:var(--text-primary);">Live Sandbox</div>
+                    <div style="font-size:10px; color:var(--text-muted); font-family:'Fira Code';">AX-01 Quantum Isolated Container</div>
+                </div>
+                <button class="btn-close" onclick="closeSandbox()">✕</button>
+            </div>
+            <div id="sandboxModalBody" class="modal-body"></div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toastMessage" class="toast-msg"></div>
+
+    <script>
+        // Data State
+        let currentTab = 'discover';
+        let axCredits = 2450;
+        let activePlan = 'Trial Sandbox (60 Days)';
+
+        const FLAGSHIP_APPS = [
+            {
+                id: 'ax_neural_studio',
+                title: 'NeuralStudio AX',
+                tagline: 'On-Device Quantized Neural Engine & Synthesis Matrix',
+                developer: 'AX-01 RZK Cyber Labs',
+                category: 'NEURAL_AI',
+                rating: 4.9,
+                downloads: '2.8M',
+                sizeMb: 48.5,
+                color: '#D500F9',
+                template: 'NEURAL',
+                installed: true
+            },
+            {
+                id: 'ax_quantum_vpn',
+                title: 'AX-Shield Quantum VPN',
+                tagline: '1,000-Year Quantum-Resistant Encryption Tunnel',
+                developer: 'AX-01 RZK Software Company',
+                category: 'QUANTUM_SECURITY',
+                rating: 4.95,
+                downloads: '5.1M',
+                sizeMb: 24.2,
+                color: '#00E676',
+                template: 'VPN',
+                installed: true
+            },
+            {
+                id: 'ax_apex_terminal',
+                title: 'Apex Terminal OS',
+                tagline: 'Hacker CLI, System Matrix & Enclave Shell',
+                developer: 'Sumon Mahmud (rzk)',
+                category: 'CYBER_TOOLS',
+                rating: 4.88,
+                downloads: '3.4M',
+                sizeMb: 18.6,
+                color: '#00E5FF',
+                template: 'TERMINAL',
+                installed: true
+            },
+            {
+                id: 'ax_chrono_racer',
+                title: 'ChronoRacer 2099',
+                tagline: 'Antigravity Neon Racing with Photon Nitro',
+                developer: 'NeonForge Interactive',
+                category: 'HOLO_GAMES',
+                rating: 4.85,
+                downloads: '8.2M',
+                sizeMb: 82.4,
+                color: '#FFB300',
+                template: 'RACER',
+                installed: true
+            },
+            {
+                id: 'ax_biosync_metrics',
+                title: 'BioSync CyberMetrics',
+                tagline: 'Biometric Telemetry & Real-Time ECG Oscilloscope',
+                developer: 'AX-01 RZK BioTech',
+                category: 'BIOMETRICS',
+                rating: 4.92,
+                downloads: '1.9M',
+                sizeMb: 29.1,
+                color: '#FF1744',
+                template: 'BIOSYNC',
+                installed: true
+            },
+            {
+                id: 'ax_overclock_optimizer',
+                title: 'Overclock Optimizer AX',
+                tagline: 'SoC Frequency Booster & Enclave Cooler',
+                developer: 'AX-01 Core Architecture',
+                category: 'CYBER_TOOLS',
+                rating: 4.79,
+                downloads: '4.2M',
+                sizeMb: 15.2,
+                color: '#00E5FF',
+                template: 'OVERCLOCK',
+                installed: false
+            },
+            {
+                id: 'ax_vortex_synth',
+                title: 'Vortex Synthwave Studio',
+                tagline: 'Cyberpunk 8-Pad Synth & Drum Sequencer',
+                developer: 'Vortex Sound Labs',
+                category: 'AUDIO_MEDIA',
+                rating: 4.87,
+                downloads: '2.3M',
+                sizeMb: 41.8,
+                color: '#FF4081',
+                template: 'SYNTH',
+                installed: false
+            }
+        ];
+
+        let customApps = [];
+
+        const PRICING_TIERS = [
+            {
+                title: 'Trial Sandbox',
+                price: 'BDT 0',
+                duration: '60 Days',
+                description: 'Full evaluation access to AX-01 Quantum environment.',
+                color: '#94A3B8'
+            },
+            {
+                title: 'Monthly Plan',
+                price: 'BDT 1,000',
+                duration: 'Per Month',
+                description: 'Standard recurring cyber developer access.',
+                color: '#00E5FF'
+            },
+            {
+                title: 'Pro Plan',
+                price: 'BDT 10,000',
+                duration: 'Quarterly',
+                description: 'Professional creator matrix license with unrestricted NPU testing.',
+                color: '#D500F9',
+                featured: true
+            },
+            {
+                title: 'Standard Full Omni Access',
+                price: 'BDT 100,000',
+                duration: 'Omni License',
+                description: 'Enterprise multi-seat deployment with zero latency priority routing.',
+                color: '#00E676'
+            },
+            {
+                title: 'Yearly Plan',
+                price: 'BDT 1,000,000 / yr',
+                duration: 'Annual',
+                description: '365 days dedicated quantum infrastructure node with 24h data feed.',
+                color: '#FFB300'
+            },
+            {
+                title: 'Elite / Lifetime / Omega',
+                price: 'BDT 10,000,000',
+                duration: 'Lifetime Sovereign',
+                description: 'Perpetual lifetime license. 1,000 years certified quantum resilience.',
+                color: '#FF1744'
+            },
+            {
+                title: 'Unlimited Neural Quantum Access',
+                price: 'BDT 1,000,000,000+',
+                duration: 'Universal Infinite',
+                description: 'Supreme Master Enclave with sovereign settlement integration.',
+                color: '#FFD700'
+            }
+        ];
+
+        const LEGAL_TEXTS = {
+            privacy: `Privacy Policy for AX-01 RZK Software Company\nEffective Date: October 4, 2026\nLast Updated: October 4, 2026\n\nAt AX-01 RZK Software Company ("we," "our," or "us"), we are committed to protecting your privacy and ensuring that your personal information is handled in a safe and responsible manner.\n\n1. Information We Collect\n• Personal Data: Name, email address, phone number, billing details.\n• Usage Data: IP address, browser type, OS, diagnostic logs.\n• Device Information: Hardware models, OS versions, unique device identifiers.\n\n2. How We Use Your Information\n• Provide, operate, and maintain software products and services.\n• Process transactions and send confirmations.\n• Improve and expand software features and user experience.\n• Automated 24h Data Feed updates under 1000-year quantum security standards.\n\nContact: ax01rzk@gmail.com | SMS: 01990761212`,
+            eula: `Software Licenses and End-User License Agreement (EULA)\nEffective Date: October 4, 2026\nLast Updated: October 4, 2026\n\nWelcome to AX-01 RZK Software Company. By downloading, installing, or using any software provided by AX-01 RZK Software Company, you agree to be bound by the terms of this EULA.\n\n1. Scope of License: Limited, non-exclusive, non-transferable revocable license.\n2. License Tiers: Individual/Developer (up to 2 authorized devices), Team/Enterprise, Evaluation/Trial (up to 60 days).\n3. Restrictions: No unauthorized decompilation, redistribution, or modification.\n4. IP: Exclusively owned by Sultan Mahmud Sumon (rzk) - AX-01 RZK Software Company.\n\nContact: ax01rzk@gmail.com | SMS: 01990761212`,
+            terms: `Terms of Service for AX-01 RZK Software Company\nEffective Date: October 4, 2026\nLast Updated: October 4, 2026\n\n1. Acceptance of Terms: Governs access to website, applications, and sandbox services.\n2. Registration: Maintain confidentiality of credentials.\n3. Acceptable Use: No interference, disruption, or malware injection.\n4. Fees & Payments: Handled via bKash/Nagad (01640646714), Mastercard (5191555506390948), or SMS (01990761212).\n5. Governing Creed: "শূণ্য থেকে শুরু শূন্য তেই শেষ"\n\nContact: ax01rzk@gmail.com | SMS: 01990761212`
+        };
+
+        // Tab Switching
+        function switchTab(tabId) {
+            currentTab = tabId;
+            document.querySelectorAll('nav .nav-tab').forEach(b => b.classList.remove('active'));
+            const tabs = ['discover', 'search', 'creator', 'storage', 'pricing', 'attribution'];
+            const idx = tabs.indexOf(tabId);
+            if (idx >= 0) {
+                document.querySelectorAll('nav .nav-tab')[idx].classList.add('active');
+            }
+
+            document.querySelectorAll('main > section').forEach(sec => sec.style.display = 'none');
+            const target = document.getElementById('view-' + tabId);
+            if (target) target.style.display = 'block';
+
+            if (tabId === 'storage') renderInstalled();
+            if (tabId === 'creator') renderCreatorApps();
+            if (tabId === 'attribution') showLegalDoc('privacy');
+        }
+
+        // Render Discover Apps
+        function renderApps(category = 'ALL') {
+            const container = document.getElementById('appListContainer');
+            const all = [...FLAGSHIP_APPS, ...customApps];
+            const filtered = category === 'ALL' ? all : all.filter(a => a.category === category || (category === 'CREATOR' && a.isCustom));
+
+            container.innerHTML = filtered.map(app => `
+                <div class="app-item" onclick="launchSandbox('${app.id}')">
+                    <div class="app-icon" style="background:${app.color}22; color:${app.color}; border-color:${app.color}66;">
+                        ${app.title.substring(0, 2).toUpperCase()}
+                    </div>
+                    <div class="app-info">
+                        <div class="app-title">${app.title}</div>
+                        <div class="app-tagline">${app.tagline}</div>
+                        <div class="app-meta">
+                            <span style="color:var(--neon-amber);">★ ${app.rating}</span>
+                            <span>${app.sizeMb} MB</span>
+                            <span class="cyber-pill" style="background:${app.color}15; color:${app.color};">${app.category}</span>
+                        </div>
+                    </div>
+                    <div>
+                        ${app.installed ? 
+                            `<button class="btn-action btn-run" onclick="event.stopPropagation(); launchSandbox('${app.id}')">RUN</button>` :
+                            `<button class="btn-action btn-get" onclick="event.stopPropagation(); installApp('${app.id}')">GET</button>`
+                        }
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterCategory(cat, btn) {
+            document.querySelectorAll('.cat-pill').forEach(p => p.classList.remove('active'));
+            btn.classList.add('active');
+            renderApps(cat);
+        }
+
+        // Search
+        function onSearchChange(q) {
+            const container = document.getElementById('searchResultsContainer');
+            if (!q.trim()) {
+                container.innerHTML = '';
+                return;
+            }
+            const all = [...FLAGSHIP_APPS, ...customApps];
+            const filtered = all.filter(a => 
+                a.title.toLowerCase().includes(q.toLowerCase()) || 
+                a.tagline.toLowerCase().includes(q.toLowerCase())
+            );
+            container.innerHTML = filtered.map(app => `
+                <div class="app-item" onclick="launchSandbox('${app.id}')">
+                    <div class="app-icon" style="background:${app.color}22; color:${app.color};">
+                        ${app.title.substring(0, 2).toUpperCase()}
+                    </div>
+                    <div class="app-info">
+                        <div class="app-title">${app.title}</div>
+                        <div class="app-tagline">${app.tagline}</div>
+                    </div>
+                    <button class="btn-action btn-run" onclick="event.stopPropagation(); launchSandbox('${app.id}')">RUN</button>
+                </div>
+            `).join('');
+        }
+
+        function setSearch(val) {
+            document.getElementById('searchInput').value = val;
+            onSearchChange(val);
+        }
+
+        // Creator Studio
+        function deployCustomApp() {
+            const title = document.getElementById('creatorTitle').value.trim();
+            const tagline = document.getElementById('creatorTagline').value.trim();
+            const template = document.getElementById('creatorTemplate').value;
+
+            if (!title) return;
+
+            const newApp = {
+                id: 'custom_' + Date.now(),
+                title: title,
+                tagline: tagline,
+                developer: 'User Creator [AX-01 Studio]',
+                category: 'CREATOR',
+                rating: 5.0,
+                downloads: '1',
+                sizeMb: 12.8,
+                color: '#D500F9',
+                template: template,
+                installed: true,
+                isCustom: true
+            };
+
+            customApps.unshift(newApp);
+            axCredits += 200;
+            updateHUD();
+            showToast(`Module '${title}' compiled and deployed!`);
+            renderCreatorApps();
+            renderApps();
+        }
+
+        function renderCreatorApps() {
+            const container = document.getElementById('creatorAppsList');
+            if (customApps.length === 0) {
+                container.innerHTML = `<div style="color:var(--text-muted); font-size:12px; padding:12px;">No user modules deployed yet. Use form above to create one.</div>`;
+                return;
+            }
+            container.innerHTML = customApps.map(app => `
+                <div class="app-item">
+                    <div class="app-info">
+                        <div class="app-title">${app.title}</div>
+                        <div class="app-tagline">${app.tagline}</div>
+                    </div>
+                    <button class="btn-action btn-run" onclick="launchSandbox('${app.id}')">RUN</button>
+                </div>
+            `).join('');
+        }
+
+        // Storage & Installed
+        function renderInstalled() {
+            const container = document.getElementById('installedAppsContainer');
+            const installed = [...FLAGSHIP_APPS, ...customApps].filter(a => a.installed);
+            container.innerHTML = installed.map(app => `
+                <div class="app-item">
+                    <div class="app-icon" style="background:${app.color}22; color:${app.color};">
+                        ${app.title.substring(0, 2).toUpperCase()}
+                    </div>
+                    <div class="app-info">
+                        <div class="app-title">${app.title}</div>
+                        <div class="app-tagline">${app.sizeMb} MB • Enclave Active</div>
+                    </div>
+                    <button class="btn-action btn-run" onclick="launchSandbox('${app.id}')">RUN</button>
+                </div>
+            `).join('');
+        }
+
+        function purgeCache() {
+            showToast('Purged 384 MB AX Enclave Cache!');
+        }
+
+        function updateAllModules() {
+            showToast('All 8 Enclave Modules verified up to date (24h feed)!');
+        }
+
+        // Pricing Tiers
+        function renderPricing() {
+            const container = document.getElementById('pricingTiersList');
+            container.innerHTML = PRICING_TIERS.map(tier => `
+                <div class="tier-card ${tier.featured ? 'featured' : ''}">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <h3 style="font-size:16px; font-weight:800; color:var(--text-primary);">${tier.title}</h3>
+                        ${tier.featured ? `<span class="cyber-pill" style="background:rgba(213,0,249,0.25); color:var(--neon-purple);">RECOMMENDED</span>` : ''}
+                    </div>
+                    <div class="tier-price" style="color:${tier.color};">${tier.price} <span style="font-size:12px; color:var(--text-muted); font-weight:normal;">/ ${tier.duration}</span></div>
+                    <p style="font-size:12px; color:var(--text-secondary); margin-bottom:12px;">${tier.description}</p>
+                    <button class="btn-action btn-get" style="width:100%; justify-content:center; background:${tier.color};" onclick="activatePlan('${tier.title}')">
+                        ACTIVATE / SUBSCRIBE
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function activatePlan(planName) {
+            activePlan = planName;
+            document.getElementById('currentPlanPill').textContent = planName.split(' ')[0];
+            document.getElementById('activePlanTitle').textContent = planName;
+            showToast(`Activated ${planName} successfully!`);
+            switchTab('pricing');
+        }
+
+        // Live Sandbox Simulator
+        function launchSandbox(appId) {
+            const app = [...FLAGSHIP_APPS, ...customApps].find(a => a.id === appId) || FLAGSHIP_APPS[0];
+            document.getElementById('sandboxAppTitle').textContent = app.title + ' — Live Sandbox';
+
+            const modalBody = document.getElementById('sandboxModalBody');
+            
+            if (app.template === 'TERMINAL') {
+                modalBody.innerHTML = `
+                    <div class="terminal-box" id="termOutput">
+                        <div style="color:var(--neon-cyan);">AX-01 Apex Terminal Kernel v2.9.0-quantum initialized.</div>
+                        <div style="color:var(--text-muted);">Type 'help', 'scan', 'matrix', 'sysinfo', 'ping', 'quote'</div>
+                        <div style="color:var(--neon-emerald);">[+] Data Feed Sync: 24h Active | 1,000-Yr Security Enclave</div>
+                    </div>
+                    <div class="term-prompt">
+                        <input type="text" id="termCmd" class="term-input" placeholder="Type command..." onkeydown="if(event.key==='Enter') execCmd()">
+                        <button class="btn-action btn-get" onclick="execCmd()">EXEC</button>
+                    </div>
+                `;
+            } else if (app.template === 'NEURAL') {
+                modalBody.innerHTML = `
+                    <div class="input-group">
+                        <label>NEURAL PROMPT MATRIX</label>
+                        <input type="text" id="neuralPrompt" class="input-control" value="Synthesize quantum lattice cipher report">
+                    </div>
+                    <button class="btn-action btn-get" style="width:100%; justify-content:center; margin-bottom:12px;" onclick="runNeuralInference()">
+                        RUN NPU INFERENCE (18ms)
+                    </button>
+                    <div id="neuralOutput" style="background:#030712; padding:14px; border-radius:8px; font-family:'Fira Code'; font-size:12px; color:var(--neon-purple); min-height:120px; white-space:pre-wrap;">Awaiting neural prompt...</div>
+                `;
+            } else if (app.template === 'VPN') {
+                modalBody.innerHTML = `
+                    <div style="text-align:center; padding:16px;">
+                        <div style="width:64px; height:64px; border-radius:50%; background:rgba(0,230,118,0.2); border:2px solid var(--neon-emerald); display:inline-flex; align-items:center; justify-content:center; font-size:28px;">🛡️</div>
+                        <div style="font-size:16px; font-weight:800; color:var(--neon-emerald); margin-top:10px; font-family:'Fira Code';">QUANTUM TUNNEL ACTIVE</div>
+                        <div style="font-size:11px; color:var(--text-muted); margin-top:4px;">15s Dynamic Lattice Key Rotation • Zero-Log RAM Node</div>
+                        <div style="margin-top:16px; font-family:'Fira Code'; font-size:12px; color:var(--text-secondary);">
+                            Ping: <span style="color:var(--neon-cyan);">4.2 ms</span> | Encrypted: <span style="color:var(--neon-emerald);">52,940 PKTS</span>
+                        </div>
+                    </div>
+                `;
+            } else if (app.template === 'OVERCLOCK') {
+                modalBody.innerHTML = `
+                    <div style="text-align:center; padding:16px;">
+                        <div style="font-size:42px; font-weight:900; font-family:'Fira Code'; color:var(--neon-cyan);">3.80 GHz</div>
+                        <div style="font-size:11px; color:var(--text-muted); font-family:'Fira Code';">OCTA-CORE CLUSTER FREQUENCY</div>
+                        <div style="margin-top:16px; font-size:13px; color:var(--neon-emerald);">Core Temp: 42°C (Optimal)</div>
+                        <button class="btn-action btn-get" style="margin:16px auto 0; background:var(--neon-cyan); color:#000;" onclick="showToast('Cryo flush executed! Temp dropped to 31°C')">
+                            1-TAP CRYO FLUSH
+                        </button>
+                    </div>
+                `;
+            } else if (app.template === 'RACER') {
+                modalBody.innerHTML = `
+                    <div style="text-align:center; padding:16px;">
+                        <div id="racerSpeed" style="font-size:52px; font-weight:900; font-family:'Fira Code'; color:var(--neon-amber);">240</div>
+                        <div style="font-size:11px; color:var(--text-muted); font-family:'Fira Code';">KM/H ANTIGRAV VELOCITY</div>
+                        <button class="btn-action btn-get" style="margin:20px auto 0; background:var(--neon-amber); color:#000; font-size:14px; padding:12px 24px;" onclick="nitroBoost()">
+                            ⚡ ENGAGE PHOTON NITRO BOOST
+                        </button>
+                    </div>
+                `;
+            } else {
+                modalBody.innerHTML = `
+                    <div style="text-align:center; padding:20px;">
+                        <div style="font-size:36px; margin-bottom:8px;">🚀</div>
+                        <h3 style="color:var(--neon-cyan); font-family:'Fira Code';">${app.title}</h3>
+                        <p style="font-size:12px; color:var(--text-secondary); margin-top:6px;">Custom isolated execution environment active.</p>
+                        <div style="margin-top:16px; font-size:11px; color:var(--neon-emerald); font-family:'Fira Code';">1000-Yr Security Enclave Verified</div>
+                    </div>
+                `;
+            }
+
+            document.getElementById('sandboxModal').classList.add('active');
+        }
+
+        function closeSandbox() {
+            document.getElementById('sandboxModal').classList.remove('active');
+        }
+
+        function execCmd() {
+            const input = document.getElementById('termCmd');
+            const val = input.value.trim().toLowerCase();
+            const out = document.getElementById('termOutput');
+            if (!val) return;
+
+            out.innerHTML += `<div style="color:var(--neon-cyan);">guest@ax-01:~$ ${val}</div>`;
+            if (val === 'help') {
+                out.innerHTML += `<div>Available: help, scan, sysinfo, matrix, ping, quote, clear</div>`;
+            } else if (val === 'scan') {
+                out.innerHTML += `<div style="color:var(--neon-emerald);">[+] Scanning 4 Global Relays: Tokyo, Zurich, Reykjavik, Singapore</div><div>[+] Zero vulnerabilities found. 1000-Yr Quantum Seal active.</div>`;
+            } else if (val === 'sysinfo') {
+                out.innerHTML += `<div>Architect: Sultan Mahmud Sumon (rzk)</div><div>Company: AX-01 RZK Software Company</div><div>Kernel: Quantum Lattice v24.8.9</div>`;
+            } else if (val === 'quote') {
+                out.innerHTML += `<div style="color:var(--neon-cyan); font-weight:700;">"শূণ্য থেকে শুরু শূন্য তেই শেষ"</div>`;
+            } else if (val === 'matrix') {
+                out.innerHTML += `<div style="color:var(--neon-emerald);">01000001 01011000 00101101 00110000 00110001 (CONNECTED)</div>`;
+            } else if (val === 'clear') {
+                out.innerHTML = '';
+            } else {
+                out.innerHTML += `<div style="color:var(--neon-rose);">[!] Unknown command '${val}'. Type 'help'.</div>`;
+            }
+            input.value = '';
+            out.scrollTop = out.scrollHeight;
+        }
+
+        function runNeuralInference() {
+            const out = document.getElementById('neuralOutput');
+            out.textContent = `[SYNTHESIS COMPLETE in 14ms]\nModel: AX-Quantized-NPU-v4 | Latency: 14ms | Security: Certified\nResult: Target enclave operates under the 1,000-year quantum cryptographic cipher established by Sultan Mahmud Sumon (rzk). Slogan creed: "শূণ্য থেকে শুরু শূন্য তেই শেষ".\nVerification Reference: 5191555506390948`;
+        }
+
+        function nitroBoost() {
+            const spd = document.getElementById('racerSpeed');
+            spd.textContent = '480';
+            spd.style.color = 'var(--neon-cyan)';
+            showToast('PHOTON NITRO WARP ENGAGED!');
+            setTimeout(() => {
+                spd.textContent = '240';
+                spd.style.color = 'var(--neon-amber)';
+            }, 2500);
+        }
+
+        // Install simulation
+        function installApp(appId) {
+            const app = FLAGSHIP_APPS.find(a => a.id === appId);
+            if (app) {
+                app.installed = true;
+                axCredits += 50;
+                updateHUD();
+                showToast(`Module '${app.title}' installed into Enclave!`);
+                renderApps();
+            }
+        }
+
+        function claimStreak() {
+            axCredits += 140;
+            updateHUD();
+            showToast('Claimed +140 AX Credits & +150 XP!');
+        }
+
+        function updateHUD() {
+            document.getElementById('creditBalance').textContent = `${axCredits.toLocaleString()} AX`;
+        }
+
+        function showToast(msg) {
+            const t = document.getElementById('toastMessage');
+            t.textContent = msg;
+            t.style.display = 'block';
+            setTimeout(() => { t.style.display = 'none'; }, 2500);
+        }
+
+        function copyText(txt, label) {
+            navigator.clipboard.writeText(txt);
+            showToast(`Copied ${label}: ${txt}`);
+        }
+
+        function showLegalDoc(key, btn) {
+            if (btn) {
+                btn.parentElement.querySelectorAll('.cat-pill').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            }
+            document.getElementById('legalDocContent').textContent = LEGAL_TEXTS[key] || '';
+        }
+
+        // Init
+        window.addEventListener('DOMContentLoaded', () => {
+            renderApps();
+            renderPricing();
+            showLegalDoc('privacy');
+        });
+    </script>
+</body>
+</html>

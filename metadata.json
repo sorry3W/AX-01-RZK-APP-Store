@@ -1,0 +1,6 @@
+{
+  "name": "AX-01 App Store Creator",
+  "description": "Cyberpunk application marketplace and creator hub with interactive sandboxes, quantum subscriptions, and developer tools.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
